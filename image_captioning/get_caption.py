@@ -11,7 +11,7 @@ def get_image_caption_from_model(
     model_name: str | None = "Salesforce/blip-image-captioning-base",
     text: str | list | None = None,
     plot_image: bool = False,
-) -> str:
+) -> list[str]:
     """
     Accepts a pre-trained image captioning model and an image to return a caption.
 
@@ -19,12 +19,12 @@ def get_image_caption_from_model(
     -----------
     image (PIL.Image.Image): Image to be captioned.
     model_name (str): String name of the pre-trained image captioning model. Currently accepts only "Salesforce/blip-image-captioning-base".
-    text (str): String to be used for conditional captioning. Prompt for captioning model.
+    text (str | list | None): To be used for conditional captioning. Prompt for captioning model. If None, then unconditional captioning will be used.
     plot_image (bool): Flag to plot the input image.
 
     Returns:
     -----------
-    caption (str): Generated caption of the image.
+    caption (list[str]): Generated caption of the image.
     """
 
     if model_name == None:
@@ -41,15 +41,8 @@ def get_image_caption_from_model(
         image_array = np.array(image)
         plt.imshow(image_array)
 
-    if text != None:
-        # conditional image captioning
-        inputs = processor(image, text, return_tensors="pt", padding=True)
-        out = model.generate(**inputs, max_new_tokens=50)
-        caption = processor.batch_decode(out, skip_special_tokens=True)
-    else:
-        # unconditional image captioning
-        inputs = processor(image, return_tensors="pt", padding=True)
-        out = model.generate(**inputs, max_new_tokens=50)
-        caption = processor.batch_decode(out, skip_special_tokens=True)
+    inputs = processor(image, text, return_tensors="pt", padding=True)
+    out = model.generate(**inputs, max_new_tokens=50)
+    caption = processor.batch_decode(out, skip_special_tokens=True)
 
     return caption
