@@ -8,8 +8,8 @@ import warnings
 
 def get_image_caption_from_model(
     image: Image.Image,
-    model_name: str | None,
-    text: str | None = None,
+    model_name: str | None = "Salesforce/blip-image-captioning-base",
+    text: str | list | None = None,
     plot_image: bool = False,
 ) -> str:
     """
@@ -43,13 +43,13 @@ def get_image_caption_from_model(
 
     if text != None:
         # conditional image captioning
-        inputs = processor(image, text, return_tensors="pt")
-        out = model.generate(**inputs)
-        caption = processor.decode(out[0], skip_special_tokens=True)
+        inputs = processor(image, text, return_tensors="pt", padding=True)
+        out = model.generate(**inputs, max_new_tokens=50)
+        caption = processor.batch_decode(out, skip_special_tokens=True)
     else:
         # unconditional image captioning
-        inputs = processor(image, return_tensors="pt")
-        out = model.generate(**inputs)
-        caption = processor.decode(out[0], skip_special_tokens=True)
+        inputs = processor(image, return_tensors="pt", padding=True)
+        out = model.generate(**inputs, max_new_tokens=50)
+        caption = processor.batch_decode(out, skip_special_tokens=True)
 
     return caption
