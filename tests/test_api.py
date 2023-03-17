@@ -1,4 +1,3 @@
-from image_captioning.get_caption import get_image_caption_from_model
 import pytest
 import requests
 
